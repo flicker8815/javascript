@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+
+  <p>script before...</p>
+
+  <script>
+        function multiplyNumeric(obj) {
+		for(let key in obj) {
+			if("number" == typeof(obj[key]))
+				obj[key] *= 2;
+		}
+        }
+	let menu = {
+  		width: 200,
+  		height: 300,
+  		title: "My menu"
+	};
+	alert(menu["width"]);
+        alert(menu["height"]);
+        alert(menu["title"]);
+	multiplyNumeric(menu);
+	alert(menu["width"]);
+	alert(menu["height"]);
+	alert(menu["title"]);
+  </script>
+

@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+
+  <p>script before...</p>
+
+  <script>
+        let user = {
+		name : "John",
+		surname : "Smith", 
+	};
+	alert(user["name"]);
+	user["name"] = "Pete";
+	alert(user["name"]);
+	delete user.name;
+	alert(user["name"]);
+  </script>
+
+  <p>...script after</p>
+
+</body>
+
