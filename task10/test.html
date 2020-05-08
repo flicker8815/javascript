@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+
+  <p>script before...</p>
+
+  <script>
+        function ucFirst(str) {
+          if(!str) return str;
+          let new_str = str[0].toUpperCase();
+          for(let i = 1; i < str.length; i++) 
+            new_str += str[i];
+
+          return new_str;
+        }
+        let str = ucFirst("john");
+        alert(str);
+  </script>
+
+  <p>...script after</p>
+
+</body>
