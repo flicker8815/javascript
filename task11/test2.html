@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+
+  <p>script before...</p>
+
+  <script>
+        let arr = ["a", "b"];
+
+		arr.push(function() {
+ 	 		alert( this );
+		})
+
+		arr[2]();
+  </script>
+
+  <p>...script after</p>
+
+</body>

@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+
+<body>
+
+  <p>script before...</p>
+
+  <script>
+        let num = [];
+        let i = 0;
+        while(1) {
+        	let x = parseInt(prompt("Input a number", 0));
+        	if(isNaN(x)) 
+        		break;
+        	else num[i++] = x;
+        }
+        let sum = 0;
+        for(let k = 0; k < i; k++) sum += num[k];
+        alert(sum);
+  </script>
+
+  <p>...script after</p>
+
+</body>
