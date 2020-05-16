@@ -18,24 +18,91 @@
 	let canvas = document.getElementById("myCanvas"); 
 	// 創建 context 對象
 	let ctx = canvas.getContext("2d");
-
-    let ballRadius = 10;
-    // Ball's coordinates x, y
-	let x = canvas.width/2;
-	let y = canvas.height-30;
 	// Ball's displacements dx, dy
 	let dx = 2;
 	let dy = -2;
-    // Paddle's Height and Width
-	let paddleHeight = 10;
-	let paddleWidth = 75;
-	let paddleX = (canvas.width-paddleWidth) / 2;
 	// Detect keyboard var
 	let rightPressed = false;
 	let leftPressed = false;
+    let brickRowCount = 3;
+    let brickColumnCount = 5;
+	// Ball
+    let Ball = {
+    	ballRadius : 10, 
+    	ballColor : "#0095DD",
+    	ballColorStatus : 1,
+    	// Ball's coordinates x, y
+    	x : canvas.width / 2, 
+	    y : canvas.height - 30,
+    };
+    // Paddle
+    let Paddle = {
+    	paddleHeight : 10, 
+    	paddleWidth : 75,
+    	// Paddle's Height and Width
+    	paddleX : (canvas.width - this.paddleWidth) / 2,
+    };
+    // Brick
+    let Brick = {
+    	brickWidth : 75,
+    	brickHeight : 20,
+    	brickPadding : 10,
+    	brickOffsetTop : 30,
+    	brickOffsetLeft : 30,
+    };
+	
+    let bricks = [];
+	for(let c = 0; c < brickColumnCount; c++) {
+    	bricks[c] = [];
+	    for(let r = 0; r < brickRowCount; r++) {
+	        bricks[c][r] = { x : 0, y : 0, status : 1 };
+	    }
+	}
+	// Score
+	let score = 0;
+
+	let lives = 3;
 
 	document.addEventListener("keydown", keyDownHandler, false);
     document.addEventListener("keyup", keyUpHandler, false);
+    document.addEventListener("mousemove", mouseMoveHandler, false);
+    function drawLives() {
+	    ctx.font = "16px Arial";
+	    ctx.fillStyle = "#0095DD";
+	    ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
+	}
+
+    function drawScore() {
+	    ctx.font = "16px Arial";
+	    ctx.fillStyle = "#0095DD";
+	    ctx.fillText("Score: " + score, 8, 20);
+	}
+
+	function mouseMoveHandler(e) {
+    	let relativeX = e.clientX - canvas.offsetLeft;
+	    if(relativeX > (Paddle.paddleWidth / 2) && relativeX < (canvas.width - Paddle.paddleWidth / 2)) {
+	        Paddle.paddleX = relativeX - Paddle.paddleWidth / 2;
+	    }
+	}
+
+    function drawBricks() {
+	    for(let c = 0; c < brickColumnCount; c++) {
+	        for(let r = 0; r < brickRowCount; r++) {
+	        	if(bricks[c][r].status == 1) {
+	        		let brickX = (c * (Brick.brickWidth + Brick.brickPadding)) + Brick.brickOffsetLeft;
+		        	let brickY = (r * (Brick.brickHeight + Brick.brickPadding)) + Brick.brickOffsetTop;
+		            bricks[c][r].x = brickX;
+		            bricks[c][r].y = brickY;
+		            ctx.beginPath();
+		            ctx.rect(brickX, brickY, Brick.brickWidth, Brick.brickHeight);
+		            ctx.fillStyle = "#0095DD";
+		            ctx.fill();
+		            ctx.closePath();
+	        	}
+	        }
+	    }
+	}
+    
     function keyDownHandler(e) {
 	    if(e.keyCode == 39) {
 	        rightPressed = true;
@@ -53,19 +120,45 @@
 	        leftPressed = false;
 	    }
 	}
+    
+	function collisionDetection() {
+	    for(let c = 0; c < brickColumnCount; c++) {
+	        for(let r = 0; r < brickRowCount; r++) {
+	            let b = bricks[c][r];
+	            if(b.status == 1) {
+	            	if(Ball.x > b.x && Ball.x < b.x + Brick.brickWidth && Ball.y > b.y && Ball.y < b.y + Brick.brickHeight) {
+	                	dy = -dy;
+	                	b.status = 0;
+	                	score++;
+	                	if(Ball.ballColorStatus) {
+	                		Ball.ballColor = "#FF0000";
+	                		Ball.ballColorStatus = !Ball.ballColorStatus
+	                	}
+	                	else {
+	                		Ball.ballColor = "#0095DD";
+	                		Ball.ballColorStatus = !Ball.ballColorStatus
+	                	}
+	                	if(score == brickRowCount * brickColumnCount) {
+	                        alert("YOU WIN, CONGRATULATIONS!");
+	                        document.location.reload();
+                   		}
+	            	}
+	            }
+	        }
+	    }
+	}
 
 	function drawBall() {
 		ctx.beginPath();
-		ctx.arc(x, y, ballRadius, 0, Math.PI*2);
-		ctx.fillStyle = "#0095DD";
+		ctx.arc(Ball.x, Ball.y, Ball.ballRadius, 0, Math.PI*2);
+		ctx.fillStyle = Ball.ballColor;
 		ctx.fill();
 		ctx.closePath();
-
 	}
 
 	function drawPaddle() {
 	    ctx.beginPath();
-	    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+	    ctx.rect(Paddle.paddleX, canvas.height - Paddle.paddleHeight, Paddle.paddleWidth, Paddle.paddleHeight);
 	    ctx.fillStyle = "#0095DD";
 	    ctx.fill();
 	    ctx.closePath();
@@ -75,26 +168,40 @@
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
     	drawBall();
     	drawPaddle();
-		if(y + dy < ballRadius) dy = -dy;
-		else if(y + dy > canvas.height- ballRadius) {
-			if(x > paddleX && x < paddleX + paddleWidth) {
+    	drawBricks();
+    	drawScore();
+    	drawLives();
+    	collisionDetection();
+		if(Ball.y + dy < Ball.ballRadius) dy = -dy;
+		else if(Ball.y + dy > canvas.height - Ball.ballRadius) {
+			if(Ball.x > Paddle.paddleX && Ball.x < Paddle.paddleX + Paddle.paddleWidth) {
         		dy = -dy;
     		}else {
-    			alert("GAME OVER");
-    			document.location.reload();
+    			lives--;
+				if(!lives) {
+				    alert("GAME OVER");
+				    document.location.reload();
+				}
+				else {
+				    Ball.x = canvas.width / 2;
+				    Ball.y = canvas.height - 30;
+				    dx += 2;
+				    dy += 2;
+				    Paddle.paddleX = (canvas.width - Paddle.paddleWidth) / 2;
+				}
     		}
 		}
 
-		if(x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
+		if(Ball.x + dx > canvas.width - Ball.ballRadius || Ball.x + dx < Ball.ballRadius) dx = -dx;
 
-		if(rightPressed && paddleX < canvas.width-paddleWidth) paddleX += 7;
-    	else if(leftPressed && paddleX > 0) paddleX -= 7;
+		if(rightPressed && Paddle.paddleX < canvas.width - Paddle.paddleWidth) Paddle.paddleX += 7;
+    	else if(leftPressed && Paddle.paddleX > 0) Paddle.paddleX -= 7;
 
-		x += dx;
-		y += dy;
+		Ball.x += dx;
+		Ball.y += dy;
+		requestAnimationFrame(draw);
 	}
-	setInterval(draw, 10);
-	// JavaScript code goes here
+	draw();
 </script>
 
 </body>
